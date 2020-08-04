@@ -1,72 +1,72 @@
 /*
- * Drone mind control:
- * This sketch sends Serial values to a reciever 
- * The input is generated via a Neurosky MindSet Mobile headset
- * 
+ * How does the mind-controlling drone operate?
+ * - This code is used for the controller circuit based on the input values that were passed from the mindwave controller
+     The purpose of the code is to receive the concentration and cortisol values of a user to send it to the controller circuit
+ *
+ * - The drone will operate under the supervision of the user, who can see how they steer the drone via a terminal display of a live altimeter
+ * - Key notes:
+     A. Throtte and Yaw: Nose goes perpendicular to the y-axis, going left and right
+     B. Pitch and Roll: Nose goes perpendicular to the x-axis, going up and down
+ *
  */
 
-// import Serial libary
+// Import the default serial library from Arduino 
 import processing.serial.*;
 
-// Define receiver  Serial
+// What is the receiver? (Arduino back-end code)
 Serial receiver ;
 
-// Import MindSet libary
+// Import Mindset library for the MindWave sensor
 import pt.citar.diablu.processing.mindset.*;
 MindSet mindSet;
 
-// Set inital values
-int throttle   = 0;
-int yaw        = 127;
-int pitch      = 127;
-int roll       = 127;
+// Set initial values for the drone to operate up, down, left, and right:
+int throttle  = 0;
+int yaw, pitch, roll;
+yaw = pitch = roll = 127;
 
+// Constructing a foundation for the initialization of the drone's operation in the air:
 void setup() 
 {
+  // Capacity of how much the drone can intake input values that were passed from the user:
   size(150, 500);
 
-  // Initiate Serial communication at COM3 
+  // COM3 port serial input values to display in the computer:
   receiver  = new Serial(this, "COM5", 115200);
 
-  // Initiate MindSet communication
-  // The MindSet uses Bluetooth Serial communication, 
-  // Check the COM-pot in the ThinkGear Connector in your Device Manager
+  // Initiate the mindset communication that will be received from the user:
   mindSet = new MindSet(this, "COM4");
 
-  // Enable anti-aliassing
+  // To get detailed imaging of the terminal display:
   smooth();
 
-  // Set stroke properties
+  // Set stroke properties of the terminal display:
   strokeWeight(5);
   stroke(255);
   strokeCap(SQUARE);
 
-  // Set line colour
+  // Set line color of the plus sign in the terminal display (the altimeter)
   fill(255);
 } 
 
-// setup()
-
+// Initialization of the formation of the altimeter:
 void draw()
 {
-  // Start with a black background
+  // Start with a dark wall:
   background(0);
 
-  // Draw horizontal line to at 40% from bottom
-  // This line indicates the minimum (40%) attention needed
+  // Minimum attention required (40%)
   line( 0, height*0.60, width, height*.60);
 
-  // Draw a line from the horizontal center upwards
-  // This line gives an indication of your attention
-  // The height is mapped in reverse to get a percentage from top
-  // Example: by 40% (0.4) attention the height value is (100 - 40) 60% (0.6) from top
+  // Line rises alogn the y-axis to measure how concentrated the user is:
+  // Example: by 50% (0.5) attention the height value is (100 - 50) 50% (0.5) from top
   line( width*.5, height, width*.5, height*map( float( attentionLevel ) / 100, 0, 1, 1, 0 ) );
 
-  // Push the attention level to the throttle, pitch, roll, and yaw variables
-  // 40 = minimum attention needed to do something
-  // 100 = maximum attention
-  // 30 = 8-bit min value for Arduino
-  // 255 = 8-bit max value for Arduino
+  // Lift the attention level to the throttle, pitch, roll, and yaw variables for the drone:
+  // 40 = Minimum attention
+  // 100 = Maximum attention
+  // 30 = 8-bit min value for Arduino given by the user
+  // 255 = 8-bit max value for Arduino given by the user
   throttle = int( map( attentionLevel, 20, 100, 30, 255 ) );
   pitch = int( map(attentionLevel, 20, 100, 30, 255) );
   roll = int( map(attentionLevel, 20, 100, 30, 255) );
@@ -78,43 +78,36 @@ void draw()
   roll        = constrain( roll, 0, 255);
   yaw         = constrain( yaw, 0, 255);
 
-  // When there is communication possible send the values to the Arduino receiver 
+  // Stable connection --> Send values to the receiver:
   {    
     println( "attentionLevel: "+attentionLevel+" throttle: "+throttle+" yaw: "+yaw+" pitch: "+pitch+" roll: "+roll );
-    receiver .write( "throttle: "+throttle+" yaw: "+yaw+" pitch: "+pitch+" roll: "+roll );
+    receiver.write( "throttle: "+throttle+" yaw: "+yaw+" pitch: "+pitch+" roll: "+roll );
   }
-  // Killswitch, press K to reset and close the program
+  
+  // Terminate the program if user pressed 'k' or ESC:
   void keyPressed() 
   {
-  if (key == 'k' || key == ESC) 
-  { 
-    //if ( receiver .available() > 0) 
-    {  
-      receiver .write("throttle: "+0+" yaw: "+127+" pitch: "+127+" roll: "+127);
-      exit();
+    if (key == 'k' || key == ESC) 
+    { 
+        receiver .write("throttle: "+0+" yaw: "+127+" pitch: "+127+" roll: "+127);
+        exit();
     }
   }
-}
 
 // MindSet variables and functions
-int signalStrenght = 0;
-int attentionLevel = 0;
+int signalStrength, attentionLevel;
+signalStrength = attentionLevel = 0;
 
-public void attentionEvent( int attentionLevel_val ) 
-{
-  attentionLevel = attentionLevel_val;
-}
+// Attention level is set to the user input for further operations:
+public void attentionEvent( int attentionLevel_val ) { attentionLevel = attentionLevel_val; }
 
-// This function is activated when the connection with the MindSet is not optimal
+// Condition that takes care of how signal noise is activated when the connection is not stable enough:
 public void poorSignalEvent( int signalNoise ) 
 {
-  // MindSet is adjusting
-  if ( signalNoise == 200 ) 
-  {
-    println( "Mindset is not touching your skin!" );
-  }
+  // Mindset adjusts to how much the signal gains or loses the noise:
+  if ( signalNoise == 200 ) { println( "Mindset is not touching your skin!" ); }
 
-  // Map the signal strenght to a percentage
+  // Map the strength of the signal noise in the terminal display:
   signalStrength = int( map( ( 200-signalNoise ), 200, 0, 100, 0 ) );
   println( "Signal strength: " + signalStrength + "%" );
 }
