@@ -75,7 +75,6 @@ public class MindSet implements Runnable, DataListener {
         int.class
       }   
       );
-      
     } 
     catch (Exception e) {
     	System.err.println("attentionEvent() method not defined. ");
@@ -134,9 +133,7 @@ public class MindSet implements Runnable, DataListener {
     	System.err.println("rawEvent() method not defined. ");
     }
 
-
     parser = new StreamParser(StreamParser.PARSER_TYPE_PACKETS, this, null );
-    //println(Serial.list());
     myPort = new Serial(parent, serialPort, 57600);
     Thread t = new Thread(this);
     t.start();
@@ -165,7 +162,6 @@ public class MindSet implements Runnable, DataListener {
           meditationLevel
         }   
         );
-        //println("Attention: " + attention);
       } 
       catch (Exception e) {
         System.err.println("Disabling meditationEvent()  because of an error.");
@@ -182,7 +178,6 @@ public class MindSet implements Runnable, DataListener {
           poorSignalLevel
         }   
         );
-        //println("Attention: " + attention);
       } 
       catch (Exception e) {
         System.err.println("Disabling meditationEvent()  because of an error.");
@@ -224,7 +219,6 @@ public class MindSet implements Runnable, DataListener {
     }
   }
 
-
   private void triggerRawEvent(int []values) {
     if (rawEventMethod != null) {
       try {
@@ -249,28 +243,19 @@ public class MindSet implements Runnable, DataListener {
   public void run() {
 
     byte [] buffer = new byte[1024];
-    //  int buffer;
     while(running) {
       int read = myPort.readBytes(buffer);
-      //println("read: " +read + " ");
       for (int i = 0; i < read; i++) {
         int result = parser.parseByte((int)buffer[i] & 0xFF);
-        //println(result + " " + (int)buffer[i]);
         if (result == -2) {
         	System.err.println("Checksum failed.");
         }
       }
-
-      // println("Result: " + result + " Value: " + (char)b + " " + b);
-      parent.delay(50);
-      
+      parent.delay(50);  
     }
   }
 
   public void dataValueReceived( int extendedCodeLevel, int code, int numBytes, byte[] valueBytes, Object customData ) {
-
-
-
     if (extendedCodeLevel == 0) {
       switch( code ) {
         case(0x02):
@@ -334,12 +319,10 @@ public class MindSet implements Runnable, DataListener {
         int mid_gamma = ((valueBytes[21] & 0xFF) << 16  |
           (valueBytes[22] & 0xFF) << 8  |
           (valueBytes[23] & 0xFF) << 0);
-//          println("EEG------");
         triggerEEGEvent(delta, theta, low_alpha, high_alpha, low_beta, high_beta, low_gamma, mid_gamma);
        
         break;
       default:
-        //println("ad" + e);
       }
     }
   }
