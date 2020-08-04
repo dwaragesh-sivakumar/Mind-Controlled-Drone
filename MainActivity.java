@@ -1,4 +1,4 @@
-//Created using Android Studio with Java
+// Created to produce a live footage (Back-end program for Raspberri Pi Camera to trigger for a live footage)
 
 package com.example.appforit;
 
@@ -9,13 +9,14 @@ package com.example.appforit;
         import android.webkit.WebViewClient;
         import android.widget.Button;
 
-public class MainActivity extends AppCompatActivity {
-
+public class MainActivity extends AppCompatActivity 
+{
         @Override
         public <T extends View> T findViewById(int id) { return super.findViewById(id); }
 
         @Override
-        protected void onCreate(Bundle savedInstanceState) {
+        protected void onCreate(Bundle savedInstanceState) 
+        {
             super.onCreate(savedInstanceState);
             setContentView(R.layout.activity_main);
 
@@ -26,7 +27,8 @@ public class MainActivity extends AppCompatActivity {
 
             btn = (Button) findViewById(R.id.btnboa);
             numba = txt.toString();
-            btn.setOnClickListener((view) -> {
+            btn.setOnClickListener((view) -> 
+            {
                 webviewbih.setVisibility(View.VISIBLE);
                 btn2.setVisibility(View.VISIBLE);
                 btn.setVisibility(View.GONE);
@@ -37,4 +39,4 @@ public class MainActivity extends AppCompatActivity {
         }
 
         public void onBackPressed() { webviewbih.loadUrl("http://10.1.10.55:8000"); }
-    }
+}
