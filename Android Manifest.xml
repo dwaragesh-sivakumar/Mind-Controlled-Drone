@@ -1,8 +1,10 @@
-//Created using Android Studio
+// Created using Android Studio
+// Used for capturing a lving footage of the audience via Raspberry Pi Camera with the aid of an IP Address
 
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.example.appforit">
+
+<manifest xmlns:android="http://schemas.android.com/apk/res/android" package="com.example.AppForIT">
+    
     <uses-permission android:name="android.permission.INTERNET"></uses-permission>
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
 
@@ -16,7 +18,6 @@
         <activity android:name=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
