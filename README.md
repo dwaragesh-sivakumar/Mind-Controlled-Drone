@@ -16,5 +16,4 @@
           -	Worked as a team to configure a Raspberry Pi Camera on the drone to cover a live footage of the audience via an app that is operated with the aid of an IP Address.
 
 
-- Created by: Dwaragesh Sivakumar
-  ·	https://github.com/Dwaragesh
+- Created by: Dwaragesh Sivakumar -- https://github.com/Dwaragesh
